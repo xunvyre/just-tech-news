@@ -55,6 +55,28 @@ router.post('/', (req, res) =>
             });
 });
 
+router.post('/login', (req, res) =>
+{
+    User.findOne({where: {email: req.body.email}})
+        .then(dbUserData =>
+            {
+                if (!dbUserData)
+                {
+                    res.status(400).json({message: 'Email address not found.'});
+                    return;
+                }
+                //res.json({user: dbUserData});
+                //verify
+                const validPassword = dbUserData.checkPassword(req.body.password);
+                if (!validPassword)
+                {
+                    res.status(400).json({message: 'Password incorrect.'});
+                    return;
+                }
+                res.json({user: dbUserData, message: 'Login successful!'});
+            });
+});
+
 router.put('/:id', (req, res) =>
 {
     //if req.body had exact key/value pairs, use req.body instead
