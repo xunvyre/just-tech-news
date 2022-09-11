@@ -33,7 +33,7 @@ router.get('/', (req, res) =>
     {
         //pass a single post object into the homepage template
         const posts = dbPostData.map(post => post.get({plain: true}));
-        res.render('homepage', {posts});
+        res.render('homepage', {posts, loggedin: req.session.loggedin});
     })
     .catch(err =>
     {
@@ -90,7 +90,7 @@ router.get('/post/:id', (req, res) =>
         //serialize the data
         const post = dbPostData.get({plain: true});
         //pass data to template
-        res.render('single-post', {post});
+        res.render('single-post', {post, loggedin: req.session.loggedin});
     })
     .catch(err =>
     {
