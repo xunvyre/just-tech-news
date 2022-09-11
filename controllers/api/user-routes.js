@@ -69,7 +69,17 @@ router.post('/', (req, res) =>
         email: req.body.email,
         password: req.body.password
     })
-        .then(dbUserData => res.json(dbUserData))
+        .then(dbUserData => 
+            {
+                req.session.save(() =>
+                {
+                    req.session.user_id = dbUserData.id;
+                    req.session.username = dbUserData.username;
+                    req.session.loggedin = true;
+                    
+                    res.json(dbUserData);
+                });
+            })
         .catch(err =>
             {
                 console.log(err);
@@ -95,8 +105,31 @@ router.post('/login', (req, res) =>
                     res.status(400).json({message: 'Password incorrect.'});
                     return;
                 }
-                res.json({user: dbUserData, message: 'Login successful!'});
+
+                req.session.save(() =>
+                {
+                    req.session.user_id = dbUserData.id;
+                    req.session.username = dbUserData.username;
+                    req.session.loggedin = true;
+                    
+                    res.json({user: dbUserData, message: 'Login successful!'});
+                });
             });
+});
+
+router.post('/logout', (req, res) =>
+{
+    if (req.session.loggedin)
+    {
+        req.session.destroy(() =>
+        {
+            res.status(204).end();
+        });
+    }
+    else
+    {
+        res.status(404).end();
+    }
 });
 
 router.put('/:id', (req, res) =>
